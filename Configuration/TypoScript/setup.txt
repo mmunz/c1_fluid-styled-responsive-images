@@ -1,7 +1,38 @@
 tt_content.textmedia.settings.responsive_image_rendering {
-    layoutKey = {$styles.content.imgtext.layoutKey}
+    
+    #layoutKey = {$styles.content.imgtext.layoutKey}
+    layoutKey = srcset
 
+    cssClasses {
+        img = img-responsive
+    }
+
+
+    # the grids breakpoints 
+    breakpoints_grid {
+        xs = 480,
+        sm = 768
+        md = 992
+        lg = 1200
+    }
+
+    # do not use sizes. These will be calculated instead by the column width.
     sourceCollection {
-        # Please write your own sourceCollection configuration
+        xs {
+    	    width = 480m
+    	    srcset = 480w
+        }
+        sm {
+    	    width = 768m
+    	    srcset = 768w
+        }
+        md {
+            width = 992m
+    	    srcset = 992w
+        }
+        lg {
+            width = 1600m
+    	    srcset = 1600w
+        }
     }
 }
