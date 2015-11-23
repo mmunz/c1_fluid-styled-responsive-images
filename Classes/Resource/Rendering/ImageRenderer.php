@@ -163,7 +163,6 @@ class ImageRenderer implements FileRendererInterface {
                 $data['data-' . $configuration['dataKey']] = $url;
                 $srcset[] = $url . rtrim(' ' . $configuration['srcset'] ? : '');
             } catch (\Exception $ignoredException) {
-
                 continue;
             }
         }
@@ -172,11 +171,15 @@ class ImageRenderer implements FileRendererInterface {
                         ProcessedFile::CONTEXT_IMAGECROPSCALEMASK, $defaultProcessConfiguration
                 )->getPublicUrl();
 
+        $altTitle = $file->getProperty('alternative') ? $file->getProperty('alternative') : $file->getProperty('name');
+
         $this->tagBuilder->reset();
         $this->tagBuilder->setTagName('img');
         $this->tagBuilder->addAttribute('src', $src);
-        $this->tagBuilder->addAttribute('alt', $file->getProperty('alternative'));
-        $this->tagBuilder->addAttribute('title', $file->getProperty('title'));
+        $this->tagBuilder->addAttribute('alt', $altTitle);
+        if ($file->getProperty('title')) {
+            $this->tagBuilder->addAttribute('title', $file->getProperty('title'));
+        }
         if ($this->settings['cssClasses']['img']) {
             $this->tagBuilder->addAttribute('class', $this->settings['cssClasses']['img']);
         }
