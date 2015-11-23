@@ -171,12 +171,12 @@ class ImageRenderer implements FileRendererInterface {
                         ProcessedFile::CONTEXT_IMAGECROPSCALEMASK, $defaultProcessConfiguration
                 )->getPublicUrl();
 
-        $altTitle = $file->getProperty('alternative') ? $file->getProperty('alternative') : $file->getProperty('name');
+        $altText = $file->getProperty('alternative') ? $file->getProperty('alternative') : $file->getProperty('name');
 
         $this->tagBuilder->reset();
         $this->tagBuilder->setTagName('img');
         $this->tagBuilder->addAttribute('src', $src);
-        $this->tagBuilder->addAttribute('alt', $altTitle);
+        $this->tagBuilder->addAttribute('alt', $altText);
         if ($file->getProperty('title')) {
             $this->tagBuilder->addAttribute('title', $file->getProperty('title'));
         }
