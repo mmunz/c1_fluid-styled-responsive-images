@@ -48,11 +48,6 @@ class ImageRenderer implements FileRendererInterface {
     protected $settings;
 
     /**
-     * @var string
-     */
-    protected $absRefPrefix;
-
-    /**
      * @var \TYPO3\CMS\Extbase\Service\FlexFormService
      */
     protected $flexFormService;
@@ -158,7 +153,7 @@ class ImageRenderer implements FileRendererInterface {
                         ProcessedFile::CONTEXT_IMAGECROPSCALEMASK, $localProcessingConfiguration
                 );
 
-                $url = $this->absRefPrefix . $processedFile->getPublicUrl();
+                $url = $GLOBALS['TSFE']->absRefPrefix . $processedFile->getPublicUrl();
 
                 $data['data-' . $configuration['dataKey']] = $url;
                 $srcset[] = $url . rtrim(' ' . $configuration['srcset'] ? : '');
@@ -317,7 +312,6 @@ class ImageRenderer implements FileRendererInterface {
 
         $this->settings['breakpoints_grid'] = (isset($settings['breakpoints_grid'])) ? $settings['breakpoints_grid'] : false;
 
-        $this->absRefPrefix = ObjectAccess::getPropertyPath($configuration, 'config.absRefPrefix') ? : '';
     }
 
 }
