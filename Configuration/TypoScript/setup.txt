@@ -18,6 +18,11 @@ tt_content.textmedia.settings.responsive_image_rendering {
 
     # do not use sizes. These will be calculated instead by the column width.
     sourceCollection {
+        default {
+            # default is not rendered to srcset but used for the fallback img
+            # in the src tag. Only width is needed
+            width = 768m
+        }
         xs {
     	    width = 480m
     	    srcset = 480w

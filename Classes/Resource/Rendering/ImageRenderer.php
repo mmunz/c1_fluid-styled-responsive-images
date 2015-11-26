@@ -128,10 +128,14 @@ class ImageRenderer implements FileRendererInterface {
             );
         }
 
-        foreach ($this->settings['sourceCollection'] as $configuration) {
+        foreach ($this->settings['sourceCollection'] as $key => $configuration) {
             try {
                 if (!is_array($configuration)) {
                     throw new \RuntimeException();
+                }
+                
+                if ($key === 'default') {
+                    continue;
                 }
 
                 if (isset($configuration['sizes'])) {
@@ -162,8 +166,14 @@ class ImageRenderer implements FileRendererInterface {
             }
         }
 
+        $originalProcessingConfiguration = $defaultProcessConfiguration;
+        
+        $originalProcessingConfiguration['width'] = isset($this->settings['sourceCollection']['default']['width'])
+                ? $this->settings['sourceCollection']['default']['width']
+                : 600;
+        
         $src = $originalFile->process(
-                        ProcessedFile::CONTEXT_IMAGECROPSCALEMASK, $defaultProcessConfiguration
+                        ProcessedFile::CONTEXT_IMAGECROPSCALEMASK, $originalProcessingConfiguration
                 )->getPublicUrl();
 
         $altText = $file->getProperty('alternative') ? $file->getProperty('alternative') : $file->getProperty('name');
