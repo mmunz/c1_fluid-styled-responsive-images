@@ -127,6 +127,7 @@ class ImageRenderer implements FileRendererInterface {
                     '(min-width: %dpx) %dvw ', $size['breakpoint'], $size['vw']
             );
         }
+        $sizes[] = "100vw";
 
         foreach ($this->settings['sourceCollection'] as $key => $configuration) {
             try {
@@ -193,9 +194,8 @@ class ImageRenderer implements FileRendererInterface {
             case 'srcset':
                 if (!empty($srcset)) {
                     $this->tagBuilder->addAttribute('srcset', implode(', ', $srcset));
+                    $this->tagBuilder->addAttribute('sizes', implode(', ', $sizes));
                 }
-
-                $this->tagBuilder->addAttribute('sizes', implode(', ', $sizes));
                 break;
             case 'data':
                 if (!empty($data)) {
