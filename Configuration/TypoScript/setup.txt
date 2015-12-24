@@ -7,7 +7,6 @@ tt_content.textmedia.settings.responsive_image_rendering {
         img = img-responsive
     }
 
-
     # the grids breakpoints 
     breakpoints_grid {
         xs = 480,
@@ -40,4 +39,40 @@ tt_content.textmedia.settings.responsive_image_rendering {
     	    srcset = 1600w
         }
     }
+
+    # Or if you use Bootstrap 4
+    #    breakpoints_grid {
+    #        xs = 0
+    #        sm = 480
+    #        md = 768
+    #        lg = 992
+    #        xl = 1200
+    #    }
+    #    sourceCollection {
+    #        default {
+    #            # default is not rendered to srcset but used for the fallback img
+    #            # in the src tag. Only width is needed
+    #            width = 768m
+    #        }
+    #        xs {
+    #    	    width = 320m
+    #    	    srcset = 320w
+    #        }
+    #        sm {
+    #    	    width = 480m
+    #    	    srcset = 480w
+    #        }
+    #        md {
+    #    	    width = 768m
+    #    	    srcset = 768w
+    #        }
+    #        lg {
+    #            width = 992m
+    #    	    srcset = 992w
+    #        }
+    #        xl {
+    #            width = 1600m
+    #    	    srcset = 1600w
+    #        }
+    #    }
 }
