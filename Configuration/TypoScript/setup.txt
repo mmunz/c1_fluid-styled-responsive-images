@@ -7,6 +7,9 @@ tt_content.textmedia.settings.responsive_image_rendering {
         img = img-responsive
     }
 
+    # debug - print image width in the top left corner of the image
+    debug = 1
+
     # the grids breakpoints 
     breakpoints_grid {
         xs = 480,

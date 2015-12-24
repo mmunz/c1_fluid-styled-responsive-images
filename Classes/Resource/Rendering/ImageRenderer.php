@@ -148,8 +148,12 @@ class ImageRenderer implements FileRendererInterface {
                 $localProcessingConfiguration = $defaultProcessConfiguration;
                 $localProcessingConfiguration['width'] = $configuration['width'];
 
-                // add width to the image
-                $localProcessingConfiguration['additionalParameters'] = '-pointsize 72 -annotate +20+80 "' . $localProcessingConfiguration['width'] . ' "';
+                if ($this->settings['debug'] > 0) {
+                    // add width to the image
+                    $localProcessingConfiguration['additionalParameters'] = 
+                        '-pointsize 60 -annotate +20+80 ' .
+                        $localProcessingConfiguration['width'];
+                }  
 
 
                 $processedFile = $originalFile->process(
@@ -313,11 +317,9 @@ class ImageRenderer implements FileRendererInterface {
         $settings = is_array($settings) ? $settings : [];
 
         $this->settings['layoutKey'] = (isset($settings['layoutKey'])) ? $settings['layoutKey'] : 'default';
-
+        $this->settings['debug'] = (isset($settings['debug'])) ? $settings['debug'] : false;
         $this->settings['sourceCollection'] = (isset($settings['sourceCollection']) && is_array($settings['sourceCollection'])) ? $settings['sourceCollection'] : [];
-
         $this->settings['cssClasses']['img'] = (isset($settings['cssClasses']['img'])) ? $settings['cssClasses']['img'] : false;
-
         $this->settings['breakpoints_grid'] = (isset($settings['breakpoints_grid'])) ? $settings['breakpoints_grid'] : false;
 
     }
