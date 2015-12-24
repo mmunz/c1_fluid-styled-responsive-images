@@ -97,8 +97,6 @@ class ImageRenderer implements FileRendererInterface {
     ) {
         $data = $srcset = $sizes = [];
 
-        //\TYPO3\CMS\Extbase\Utility\DebuggerUtility::var_dump($file);
-
         if ($file instanceof FileReference) {
             $originalFile = $file->getOriginalFile();
         } else {
