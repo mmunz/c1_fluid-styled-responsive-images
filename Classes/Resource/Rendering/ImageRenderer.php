@@ -95,6 +95,7 @@ class ImageRenderer implements FileRendererInterface {
     public function render(
     FileInterface $file, $width, $height, array $options = array(), $usedPathsRelativeToCurrentScript = false
     ) {
+        is_array($options['additionalAttributes']) ? $additionalAttributes = $options['additionalAttributes'] : null;
         $data = $srcset = $sizes = [];
 
         if ($file instanceof FileReference) {
@@ -106,6 +107,7 @@ class ImageRenderer implements FileRendererInterface {
         try {
             $defaultProcessConfiguration = [];
             $defaultProcessConfiguration['width'] = (int) $width;
+            $defaultProcessConfiguration['height'] = (int) $height;
             $defaultProcessConfiguration['crop'] = $file->getProperty('crop');
         } catch (\InvalidArgumentException $e) {
             $defaultProcessConfiguration['crop'] = '';
@@ -118,7 +120,7 @@ class ImageRenderer implements FileRendererInterface {
             $this->flexFormService = $objectManager->get('TYPO3\CMS\Extbase\Service\FlexFormService');
         }
         $parentTree = $this->getParents($fceUid);
-        $sizesArray = array_reverse($this->getSizes($parentTree));
+        $sizesArray = array_reverse($this->getSizes($parentTree, $additionalAttributes));
 
         foreach ($sizesArray as $size) {
             $sizes[] = sprintf(
@@ -144,17 +146,23 @@ class ImageRenderer implements FileRendererInterface {
                 if ((int) $configuration['width'] > (int) $width) {
                     throw new \RuntimeException();
                 }
+                
+                
 
                 $localProcessingConfiguration = $defaultProcessConfiguration;
-                $localProcessingConfiguration['width'] = $configuration['width'];
 
+                if ($options['additionalAttributes']['image_ratio']) {
+                    $localProcessingConfiguration['width'] = intval($configuration['width'])."c";
+                    $localProcessingConfiguration['height'] = round(intval($configuration['width']) / $options['additionalAttributes']['image_ratio'])."c";
+                } else {
+                    $localProcessingConfiguration['width'] = intval($configuration['width']);
+                }
                 if ($this->settings['debug'] > 0) {
                     // add width to the image
                     $localProcessingConfiguration['additionalParameters'] = 
-                        '-pointsize 60 -annotate +20+80 ' .
-                        $localProcessingConfiguration['width'];
+                        '-pointsize 40 -gravity Center -annotate +0+0 ' .
+                        $localProcessingConfiguration['width'] . ' -gravity NorthWest';
                 }  
-
 
                 $processedFile = $originalFile->process(
                         ProcessedFile::CONTEXT_IMAGECROPSCALEMASK, $localProcessingConfiguration
@@ -175,6 +183,10 @@ class ImageRenderer implements FileRendererInterface {
                 ? $this->settings['sourceCollection']['default']['width']
                 : 600;
         
+        if ($options['additionalAttributes']['image_ratio']) {
+            $originalProcessingConfiguration['height'] =  round(intval($originalProcessingConfiguration['width']) / $options['additionalAttributes']['image_ratio']);
+        }
+        
         $src = $originalFile->process(
                         ProcessedFile::CONTEXT_IMAGECROPSCALEMASK, $originalProcessingConfiguration
                 )->getPublicUrl();
@@ -183,6 +195,7 @@ class ImageRenderer implements FileRendererInterface {
 
         $this->tagBuilder->reset();
         $this->tagBuilder->setTagName('img');
+        // ENABLE AGAIN LATER!
         $this->tagBuilder->addAttribute('src', $src);
         $this->tagBuilder->addAttribute('alt', $altText);
         if ($file->getProperty('title')) {
@@ -236,8 +249,14 @@ class ImageRenderer implements FileRendererInterface {
      * @param array containing the parent "tree"
      * @return array sizes array
      */
-    protected function getSizes($tree) {
-        $sizes = [];
+    protected function getSizes($tree, $size) {
+        if (is_array($size) && $size['vw']) {
+            $size['breakpoint'] = $this->settings['breakpoints_grid'][$size['breakpoint']];
+            $sizes[] = $size;
+            
+        } else {
+            $sizes = [];
+        }
         $fluxColumn = substr($tree[0]['tx_flux_column'], 6);
         foreach ($tree as $key => $configuration) {
             $breakpoint = $configuration['flexform']['breakpoint'];
