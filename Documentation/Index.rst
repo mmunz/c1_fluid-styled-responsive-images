@@ -12,7 +12,7 @@ Fluid Styled Responsive Images
 .. only:: html
 
 	:Classification:
-		fluid_styled_responsive_images
+		c1_fluid_styled_responsive_images
 
 	:Version:
 		|release|

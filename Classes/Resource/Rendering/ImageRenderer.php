@@ -1,6 +1,6 @@
 <?php
 
-namespace Schnitzler\FluidStyledResponsiveImages\Resource\Rendering;
+namespace C1\FluidStyledResponsiveImages\Resource\Rendering;
 
 use TYPO3\CMS\Core\Resource\FileInterface;
 use TYPO3\CMS\Core\Resource\FileReference;
@@ -18,7 +18,7 @@ use FluidTYPO3\Fluidcontent\Service\ConfigurationService;
 
 /**
  * Class ImageRenderer
- * @package Schnitzler\FluidStyledResponsiveImages\Resource\Rendering
+ * @package C1\FluidStyledResponsiveImages\Resource\Rendering
  */
 class ImageRenderer implements FileRendererInterface {
 

@@ -4,7 +4,7 @@
 $additionalColumns = [
     'image_format' => [
         'exclude' => true,
-        'label' => 'LLL:EXT:fluid_styled_responsive_images/Resources/Private/Language/TCA.xlf:image_format_formlabel',
+        'label' => 'LLL:EXT:c1_fluid_styled_responsive_images/Resources/Private/Language/TCA.xlf:image_format_formlabel',
         'config' => [
             'type' => 'select',
             'renderType' => 'selectSingle',
@@ -12,12 +12,12 @@ $additionalColumns = [
     ],
     'image_rows' => array(
         'exclude' => true,
-        'label' => 'LLL:EXT:fluid_styled_responsive_images/Resources/Private/Language/TCA.xlf:image_rows_formlabel',
+        'label' => 'LLL:EXT:c1_fluid_styled_responsive_images/Resources/Private/Language/TCA.xlf:image_rows_formlabel',
         'config' => array(
             'type' => 'check',
             'items' => array(
                 '1' => array(
-                    '0' => 'LLL:EXT:fluid_styled_responsive_images/Resources/Private/Language/TCA.xlf:image_rows.1.0'
+                    '0' => 'LLL:EXT:c1_fluid_styled_responsive_images/Resources/Private/Language/TCA.xlf:image_rows.1.0'
                 )
             ),
             'default' => 1,

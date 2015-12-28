@@ -1,3 +1,11 @@
+1.0.3 / 15-12-28
+=================
+
+  * Make this a real fork and use c1_fluid_styled_responsive_images as EXTKEY now (mmunz)
+  * Allow to force a image_format when rendering (mmunz)
+  * allow to give a hint on how big the image will be using additionalParameters,
+    this can for example be used by images rendered using the GalleryProcessor. (mmunz)
+
 1.0.2 / 15-11-21
 ==================
 
