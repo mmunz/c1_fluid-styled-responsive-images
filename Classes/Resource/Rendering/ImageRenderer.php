@@ -143,7 +143,7 @@ class ImageRenderer implements FileRendererInterface {
                     $sizes[] = trim($configuration['sizes'], ' ,');
                 }
 
-                if ((int) $configuration['width'] > (int) $width) {
+                if ((int) $width > 0 && (int) $configuration['width'] > (int) $width) {
                     throw new \RuntimeException();
                 }
                 
