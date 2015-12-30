@@ -151,9 +151,9 @@ class ImageRenderer implements FileRendererInterface {
 
                 $localProcessingConfiguration = $defaultProcessConfiguration;
 
-                if ($options['additionalAttributes']['image_ratio']) {
+                if ($options['additionalAttributes']['image_format'] > 0) {
                     $localProcessingConfiguration['width'] = intval($configuration['width'])."c";
-                    $localProcessingConfiguration['height'] = round(intval($configuration['width']) / $options['additionalAttributes']['image_ratio'])."c";
+                    $localProcessingConfiguration['height'] = round(intval($configuration['width']) / $options['additionalAttributes']['image_format'])."c";
                 } else {
                     $localProcessingConfiguration['width'] = intval($configuration['width']);
                 }
@@ -183,8 +183,8 @@ class ImageRenderer implements FileRendererInterface {
                 ? $this->settings['sourceCollection']['default']['width']
                 : 600;
         
-        if ($options['additionalAttributes']['image_ratio']) {
-            $originalProcessingConfiguration['height'] =  round(intval($originalProcessingConfiguration['width']) / $options['additionalAttributes']['image_ratio']);
+        if ($options['additionalAttributes']['image_format']) {
+            $originalProcessingConfiguration['height'] =  round(intval($originalProcessingConfiguration['width']) / $options['additionalAttributes']['image_format']);
         }
         
         $src = $originalFile->process(

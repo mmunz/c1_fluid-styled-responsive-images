@@ -1,5 +1,31 @@
 <?php
 
+// if you need to change the ratios in a provider extension, you need to copy
+// the complete code.
+
+$GLOBALS['TCA']['sys_file_reference']['columns']['crop']['config']['ratios'] = [
+    '3' => '3:1',
+    '2' => '2:1',
+    '1.7777777777777777' => '16:9',
+    '1.3333333333333333' => '4:3',
+    '1' => '1:1',
+    'NaN' => 'Free',
+];
+
+function ratiosToItems() {
+    $ratios = $GLOBALS['TCA']['sys_file_reference']['columns']['crop']['config']['ratios'];
+    // Empty item
+    $items[] = ['', '0'];
+    foreach ($ratios as $key => $ratio) {
+        if ($key !== 'NaN') {
+            $items[] = array($ratio, $key);
+        }
+    }
+    error_log(print_r($items));
+    return $items;
+}
+
+
 // Add image_format and image_rows to TCA
 $additionalColumns = [
     'image_format' => [
@@ -8,6 +34,7 @@ $additionalColumns = [
         'config' => [
             'type' => 'select',
             'renderType' => 'selectSingle',
+            'items' => ratiosToItems(),
         ]
     ],
     'image_rows' => array(
