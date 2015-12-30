@@ -21,7 +21,7 @@ additionalParameters can be passed to the image renderer:
 
 * vw - the viewport width of the image at the given breakpoint (integer)
 * breakpoint - Breakpoint, at which the above vw width is used (string)
-* image_ratio - Force a predefined image ratio (integer)
+* image_format - Force a predefined image ratio (float)
 
 (Yes, this allows only for one breakpoint at the moment)
 
@@ -31,7 +31,7 @@ additionalParameters can be passed to the image renderer:
     width="{img.dimensions.width}"
     alt="foo"
     title="{img.media.title}"
-    additionalAttributes="{vw: 33.33, breakpoint: 'sm', image_ratio: image_ratio}"
+    additionalAttributes="{vw: 33.33, breakpoint: 'sm', image_format: image_format}"
 />
 In this example the image will be 33.33% width at screens larger than 'sm'
 
@@ -53,3 +53,9 @@ styles.content {
     }
 }
 
+## Setting image ratios
+We use TYPO3's own image ratio array in
+$GLOBALS['TCA']['sys_file_reference']['columns']['crop']['config']['ratios'].
+
+We overwrite and extend this in Classes/Overrides/tt_content.php. To add new
+ratios: Add your own overwrites in the provider extension.
