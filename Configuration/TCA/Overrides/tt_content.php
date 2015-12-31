@@ -21,7 +21,6 @@ function ratiosToItems() {
             $items[] = array($ratio, $key);
         }
     }
-    error_log(print_r($items));
     return $items;
 }
 
