@@ -97,7 +97,6 @@ class ImageRenderer implements FileRendererInterface {
     ) {
         is_array($options['additionalAttributes']) ? $additionalAttributes = $options['additionalAttributes'] : null;
         $data = $srcset = $sizes = [];
-
         if ($file instanceof FileReference) {
             $originalFile = $file->getOriginalFile();
         } else {
@@ -112,7 +111,6 @@ class ImageRenderer implements FileRendererInterface {
         } catch (\InvalidArgumentException $e) {
             $defaultProcessConfiguration['crop'] = '';
         }
-
         $fceUid = $file->getProperty('uid_foreign');
 
         $objectManager = GeneralUtility::makeInstance('TYPO3\CMS\Extbase\Object\ObjectManager');
@@ -195,7 +193,6 @@ class ImageRenderer implements FileRendererInterface {
 
         $this->tagBuilder->reset();
         $this->tagBuilder->setTagName('img');
-        // ENABLE AGAIN LATER!
         $this->tagBuilder->addAttribute('src', $src);
         $this->tagBuilder->addAttribute('alt', $altText);
         if ($file->getProperty('title')) {
