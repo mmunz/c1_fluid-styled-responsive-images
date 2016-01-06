@@ -153,7 +153,7 @@ class ImageRenderer implements FileRendererInterface {
                     $localProcessingConfiguration['width'] = intval($configuration['width'])."c";
                     $localProcessingConfiguration['height'] = round(intval($configuration['width']) / $options['additionalAttributes']['image_format'])."c";
                 } else {
-                    $localProcessingConfiguration['width'] = intval($configuration['width']);
+                    $localProcessingConfiguration['width'] = intval($configuration['width']) . 'm';
                 }
                 if ($this->settings['debug'] > 0) {
                     // add width to the image
@@ -207,6 +207,11 @@ class ImageRenderer implements FileRendererInterface {
                 if (!empty($srcset)) {
                     $this->tagBuilder->addAttribute('srcset', implode(', ', $srcset));
                     $this->tagBuilder->addAttribute('sizes', implode(', ', $sizes));
+                    
+//                    $this->tagBuilder->addAttributes([
+//                        'width' => (int) $width,
+//                        'height' => (int) $height,
+//                    ]);
                 }
                 break;
             case 'data':
