@@ -42,6 +42,7 @@ In this example the image will be 33.33% width at screens larger than 'sm'
 You need some settings in styles.content constants to allow larger images and
 enable responsive image rendering:
 
+```
 styles.content {
     imgtext {
         responsive = 1
@@ -52,6 +53,7 @@ styles.content {
 		maxWInText = 940
     }
 }
+```
 
 ## Setting image ratios
 We use TYPO3's own image ratio array in
