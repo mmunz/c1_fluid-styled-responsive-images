@@ -120,6 +120,7 @@ class ImageRenderer implements FileRendererInterface {
         $parentTree = $this->getParents($fceUid);
         $sizesArray = array_reverse($this->getSizes($parentTree, $additionalAttributes));
 
+
         foreach ($sizesArray as $size) {
             $sizes[] = sprintf(
                     '(min-width: %dpx) %dvw ', $size['breakpoint'], $size['vw']
@@ -265,11 +266,13 @@ class ImageRenderer implements FileRendererInterface {
 
             if ($breakpoint && $fluxColumn) {
                 $cols = $configuration['flexform']['columns'][$fluxColumn]['column']['cols'];
-                $viewportSize = $cols / 12 * 100;
-                $sizes[] = [
-                    'breakpoint' => $this->settings['breakpoints_grid'][$breakpoint],
-                    'vw' => $viewportSize
-                ];
+                if ($cols) {
+                    $viewportSize = $cols / 12 * 100;
+                    $sizes[] = [
+                        'breakpoint' => $this->settings['breakpoints_grid'][$breakpoint],
+                        'vw' => $viewportSize
+                    ];
+                }
             }
             $fluxColumn = substr($configuration['tx_flux_column'], 6);
         }
