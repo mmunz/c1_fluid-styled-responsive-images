@@ -120,11 +120,12 @@ class ImageRenderer implements FileRendererInterface {
         $parentTree = $this->getParents($fceUid);
         $sizesArray = array_reverse($this->getSizes($parentTree, $additionalAttributes));
 
-
         foreach ($sizesArray as $size) {
-            $sizes[] = sprintf(
-                    '(min-width: %dpx) %dvw ', $size['breakpoint'], $size['vw']
-            );
+            if ($size['breakpoint'] !== '0') {
+                $sizes[] = sprintf(
+                        '(min-width: %dpx) %dvw ', $size['breakpoint'], $size['vw']
+                );
+            }
         }
         $sizes[] = "100vw";
 
@@ -133,7 +134,7 @@ class ImageRenderer implements FileRendererInterface {
                 if (!is_array($configuration)) {
                     throw new \RuntimeException();
                 }
-                
+
                 if ($key === 'default') {
                     continue;
                 }
@@ -145,23 +146,22 @@ class ImageRenderer implements FileRendererInterface {
                 if ((int) $width > 0 && (int) $configuration['width'] > (int) $width) {
                     throw new \RuntimeException();
                 }
-                
-                
+
+
 
                 $localProcessingConfiguration = $defaultProcessConfiguration;
 
                 if ($options['additionalAttributes']['image_format'] > 0) {
-                    $localProcessingConfiguration['width'] = intval($configuration['width'])."c";
-                    $localProcessingConfiguration['height'] = round(intval($configuration['width']) / $options['additionalAttributes']['image_format'])."c";
+                    $localProcessingConfiguration['width'] = intval($configuration['width']) . "c";
+                    $localProcessingConfiguration['height'] = round(intval($configuration['width']) / $options['additionalAttributes']['image_format']) . "c";
                 } else {
                     $localProcessingConfiguration['width'] = intval($configuration['width']) . 'm';
                 }
                 if ($this->settings['debug'] > 0) {
                     // add width to the image
-                    $localProcessingConfiguration['additionalParameters'] = 
-                        '-pointsize 40 -gravity Center -annotate +0+0 ' .
-                        $localProcessingConfiguration['width'] . ' -gravity NorthWest';
-                }  
+                    $localProcessingConfiguration['additionalParameters'] = '-pointsize 40 -stroke white -gravity Center -annotate +0+0 ' .
+                            $localProcessingConfiguration['width'] . ' -gravity NorthWest';
+                }
 
                 $processedFile = $originalFile->process(
                         ProcessedFile::CONTEXT_IMAGECROPSCALEMASK, $localProcessingConfiguration
@@ -177,15 +177,13 @@ class ImageRenderer implements FileRendererInterface {
         }
 
         $originalProcessingConfiguration = $defaultProcessConfiguration;
-        
-        $originalProcessingConfiguration['width'] = isset($this->settings['sourceCollection']['default']['width'])
-                ? $this->settings['sourceCollection']['default']['width']
-                : 600;
-        
+
+        $originalProcessingConfiguration['width'] = isset($this->settings['sourceCollection']['default']['width']) ? $this->settings['sourceCollection']['default']['width'] : 600;
+
         if ($options['additionalAttributes']['image_format']) {
-            $originalProcessingConfiguration['height'] =  round(intval($originalProcessingConfiguration['width']) / $options['additionalAttributes']['image_format']);
+            $originalProcessingConfiguration['height'] = round(intval($originalProcessingConfiguration['width']) / $options['additionalAttributes']['image_format']);
         }
-        
+
         $src = $originalFile->process(
                         ProcessedFile::CONTEXT_IMAGECROPSCALEMASK, $originalProcessingConfiguration
                 )->getPublicUrl();
@@ -208,7 +206,7 @@ class ImageRenderer implements FileRendererInterface {
                 if (!empty($srcset)) {
                     $this->tagBuilder->addAttribute('srcset', implode(', ', $srcset));
                     $this->tagBuilder->addAttribute('sizes', implode(', ', $sizes));
-                    
+
 //                    $this->tagBuilder->addAttributes([
 //                        'width' => (int) $width,
 //                        'height' => (int) $height,
@@ -229,7 +227,6 @@ class ImageRenderer implements FileRendererInterface {
                 ]);
                 break;
         }
-
         return $this->tagBuilder->render();
     }
 
@@ -256,7 +253,6 @@ class ImageRenderer implements FileRendererInterface {
         if (is_array($size) && $size['vw']) {
             $size['breakpoint'] = $this->settings['breakpoints_grid'][$size['breakpoint']];
             $sizes[] = $size;
-            
         } else {
             $sizes = [];
         }
@@ -345,7 +341,6 @@ class ImageRenderer implements FileRendererInterface {
         $this->settings['sourceCollection'] = (isset($settings['sourceCollection']) && is_array($settings['sourceCollection'])) ? $settings['sourceCollection'] : [];
         $this->settings['cssClasses']['img'] = (isset($settings['cssClasses']['img'])) ? $settings['cssClasses']['img'] : false;
         $this->settings['breakpoints_grid'] = (isset($settings['breakpoints_grid'])) ? $settings['breakpoints_grid'] : false;
-
     }
 
 }
