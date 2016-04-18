@@ -1,3 +1,11 @@
+2.0.0 / 16-04-18
+================
+
+ * user additionalConfig instead of additionalAttributes for passing options
+   to the image renderer.
+ * some refactoring
+ * can support multiple breakpoints now when using manual config
+
 1.0.3 / 15-12-28
 =================
 

@@ -4,7 +4,7 @@
 
 This fork of https://github.com/alexanderschnitzler/fluid-styled-responsive-images
 is an attempt to get better responsive images by being aware of the column
-size/width, in which the element will be displayed.
+size/width in which the element will be displayed.
 
 ## Automatic width detection
 
@@ -17,25 +17,40 @@ sizes attribute would be added: "(min-width: 992x) 33vw, 100vw"
 ## Manual hints using additionalAttributes
 
 When rendering an image from fluid using the f:media viewhelper some
-additionalParameters can be passed to the image renderer:
+additional options can be passed to the image renderer:
 
-* vw - the viewport width of the image at the given breakpoint (integer)
-* breakpoint - Breakpoint, at which the above vw width is used (string)
-* image_format - Force a predefined image ratio (float)
-
-(Yes, this allows only for one breakpoint at the moment)
-
+* image_format - Force a image aspect ratio, e.g. 2 = 1/2 ratio (float)
+* respImg
+  * breakpoint
+    * vw - the viewport width of the image at the given breakpoint (integer)
+    * image_format - image ratio (float)
 ```
 <f:media
     file="{img.media}"
     width="{img.dimensions.width}"
     alt="foo"
     title="{img.media.title}"
-    additionalAttributes="{vw: 33.33, breakpoint: 'sm', image_format: image_format}"
+    additionalConfig="{image_format: 2, respImg: {xxs: {image_format: '1.3'}, xs: {image_format: '1.3'}, sm: {image_format: '1.5'}}}"
 />
-In this example the image will be 33.33% width at screens larger than 'sm'
+```
+In this example the image will be 33.33% width at screens larger than 'sm' and
+use a default image ratio of 1/2. On small screens (sm) we use a ratio of 1/1.5.
+
+It is also possible to use additionalAttributes to add the sizes attribute to
+rendered images, e.g.
 
 ```
+<f:media
+    file="{mediaElement}"
+    title="{mediaElement.originalResource.title}"
+    alt="{mediaElement.originalResource.alternative}"
+    width="1920"
+    additionalAttributes="{sizes: '(min-width: 62em) 33vw, (min-width: 48em) 50vw, 100vw'}"
+/>
+```
+
+If both additionalAttributes and additionalConfig is used then the sizes
+option from additionalAttributes takes precedence.
 
 ## styles.content settings
 

@@ -1,7 +1,7 @@
 {
     "name": "c1/c1-fluid-styled-responsive-images",
     "type": "typo3-cms-extension",
-    "version": "1.0.3",
+    "version": "2.0.0",
     "description": "Enables creation of responsive images for fluid styled content elements.",
     "keywords": [
         "TYPO3",
