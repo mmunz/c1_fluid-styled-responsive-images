@@ -206,9 +206,13 @@ class ImageRenderer implements FileRendererInterface {
                 }
                 $localProcessingConfiguration = $this->defaultProcessConfiguration;
 
-                if ($this->additionalConfig['respImg'][$key]['image_format'] > 0) {
+                if ($this->additionalConfig['image_format'] > 0 || $this->additionalConfig['respImg'][$key]['image_format'] > 0) {
+                    $img_format = $this->additionalConfig['image_format'];
+                    if ($this->additionalConfig['respImg'][$key]['image_format'] > 0) {
+                        $img_format = $this->additionalConfig['respImg'][$key]['image_format'];
+                    }
                     $localProcessingConfiguration['width'] = intval($configuration['width']) . "c";
-                    $localProcessingConfiguration['height'] = round(intval($configuration['width']) / $this->additionalConfig['respImg'][$key]['image_format']) . "c";
+                    $localProcessingConfiguration['height'] = round(intval($configuration['width']) / $img_format) . "c";
                 } else {
                     $localProcessingConfiguration['width'] = intval($configuration['width']) . 'm';
                 }
