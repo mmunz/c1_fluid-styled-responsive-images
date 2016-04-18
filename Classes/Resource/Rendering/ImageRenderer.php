@@ -48,6 +48,41 @@ class ImageRenderer implements FileRendererInterface {
     protected $settings;
 
     /**
+     * @var \TYPO3\CMS\Core\Resource\File
+     */
+    protected $imageFile;
+
+    /**
+     * @var FileInterface
+     */
+    protected $originalFile;
+
+    /**
+     * @var array
+     */
+    protected $sizes;
+
+    /**
+     * @var array
+     */
+    protected $srcset;
+
+    /**
+     * @var array
+     */
+    protected $additionalConfig;
+
+    /**
+     * @var array
+     */
+    protected $additionalAttributes;
+
+    /**
+     * @var array
+     */
+    protected $defaultProcessConfiguration;
+
+    /**
      * @var \TYPO3\CMS\Extbase\Service\FlexFormService
      */
     protected $flexFormService;
@@ -57,7 +92,6 @@ class ImageRenderer implements FileRendererInterface {
      */
     public function __construct() {
         $this->settings = [];
-        $this->sizes = [];
         $this->typoScriptService = GeneralUtility::makeInstance(TypoScriptService::class);
         $this->tagBuilder = GeneralUtility::makeInstance(TagBuilder::class);
         $this->getConfiguration();
@@ -86,99 +120,95 @@ class ImageRenderer implements FileRendererInterface {
     }
 
     /**
-     * @param FileInterface $file
-     * @param int|string $width TYPO3 known format; examples: 220, 200m or 200c
-     * @param int|string $height TYPO3 known format; examples: 220, 200m or 200c
-     * @param array $options
-     * @param bool $usedPathsRelativeToCurrentScript See $file->getPublicUrl()
-     * @return string
+     * @param Array $options
+     * @return void
      */
-    public function render(
-    FileInterface $file, $width, $height, array $options = array(), $usedPathsRelativeToCurrentScript = false
-    ) {
-        $srcset = [];
-        is_array($options['additionalConfig']) ? $additionalConfig = $options['additionalConfig'] : null;
-        is_array($options['additionalAttributes']) ? $additionalAttributes = $options['additionalAttributes'] : null;
-        //\TYPO3\CMS\Extbase\Utility\DebuggerUtility::var_dump($options['additionalConfig']);
-
+    protected function init($file, $width, $height, $options) {
+        $this->srcset = [];
+        $this->originalFile = $file;
         if ($file instanceof FileReference) {
-            $originalFile = $file->getOriginalFile();
+            $this->imageFile = $file->getOriginalFile();
         } else {
-            $originalFile = $file;
+            $this->imageFile = $file;
         }
 
         try {
-            $defaultProcessConfiguration = [];
-            $defaultProcessConfiguration['width'] = (int) $width;
-            $defaultProcessConfiguration['height'] = (int) $height;
-            $defaultProcessConfiguration['crop'] = $file->getProperty('crop');
+            $this->defaultProcessConfiguration = [];
+            $this->defaultProcessConfiguration['width'] = (int) $width;
+            $this->defaultProcessConfiguration['height'] = (int) $height;
+            $this->defaultProcessConfiguration['crop'] = $this->imageFile->getProperty('crop');
         } catch (\InvalidArgumentException $e) {
-            $defaultProcessConfiguration['crop'] = '';
+            $this->defaultProcessConfiguration['crop'] = '';
         }
 
-        // only work on file references inside tt_content
-        $refTablenames = $file->getProperty('tablenames');
-        if (is_array($additionalConfig) && $refTablenames === 'tt_content') {
-            $fceUid = $file->getProperty('uid_foreign');
-            $objectManager = GeneralUtility::makeInstance('TYPO3\CMS\Extbase\Object\ObjectManager');
-            if ($this->flexFormService === NULL) {
-                $this->flexFormService = $objectManager->get('TYPO3\CMS\Extbase\Service\FlexFormService');
-            }
-            $parentTree = $this->getParents($fceUid);
-            $sizesArray = array_reverse($this->getSizes($parentTree, $additionalConfig));
+        is_array($options['additionalConfig']) ? $this->additionalConfig = $options['additionalConfig'] : null;
 
-            foreach ($sizesArray as $size) {
-                if ($size['breakpoint'] !== '0') {
-                    $this->sizes[] = sprintf(
-                            '(min-width: %dpx) %dvw ', $size['breakpoint'], $size['vw']
-                    );
-                }
+        if (is_array($options['additionalAttributes'])) {
+            $this->additionalAttributes = $options['additionalAttributes'];
+            if (array_key_exists('sizes', $this->additionalAttributes)) {
+                $this->sizes = $this->additionalAttributes['sizes'];
             }
-            $this->sizes[] = "100vw";
-        } else {
-//            $sizesArray = array_reverse($this->getSizes($parentTree, $additionalConfig));
-//
-//            foreach ($sizesArray as $size) {
-//                if ($size['breakpoint'] !== '0') {
-//                    $this->sizes[] = sprintf(
-//                            '(min-width: %dpx) %dvw ', $size['breakpoint'], $size['vw']
-//                    );
-//                }
+        }
+    }
+
+    /**
+     * @return void
+     */
+    protected function calculateSizes() {
+        $fceUid = $this->originalFile->getProperty('uid_foreign');
+        $objectManager = GeneralUtility::makeInstance('TYPO3\CMS\Extbase\Object\ObjectManager');
+        if ($this->flexFormService === NULL) {
+            $this->flexFormService = $objectManager->get('TYPO3\CMS\Extbase\Service\FlexFormService');
+        }
+        $parentTree = $this->getParents($fceUid);
+        $this->getSizes($parentTree);
+        //$sizesArray = array_reverse($this->getSizes($parentTree));
+//        foreach ($this->sizes as $size) {
+//            if ($size['breakpoint'] !== '0') {
+//                $this->sizes[] = sprintf(
+//                        '(min-width: %dpx) %dvw ', $size['breakpoint'], $size['vw']
+//                );
 //            }
-            //\TYPO3\CMS\Extbase\Utility\DebuggerUtility::var_dump($additionalConfig);
-//            $bp = $this->settings['breakpoints_grid'][$additionalConfig['breakpoint']];
-//            $this->sizes[] = sprintf(
-//                           '(min-width: %dpx) %dvw ', $bp, $additionalConfig['vw']
-//                      );
-//            $this->sizes[] = "100vw";
-        }
-        //\TYPO3\CMS\Extbase\Utility\DebuggerUtility::var_dump($this->sizes);
+//        }
+        //$this->sizes[] = "100vw";
+    }
 
+    /**
+     * @return string
+     */
+    protected function formatSizes() {
+        $formatted = [];
+        foreach ($this->sizes as $size) {
+            if ($size['breakpoint'] !== '0') {
+                $formatted[] = sprintf('(min-width: %dpx) %dvw', $size['breakpoint'], $size['vw']);
+            }
+        }
+        $formatted[] = "100vw";
+        return implode(', ', $formatted);
+    }
+
+    /**
+     * Creates the srcset line and the needed images
+     * @return void
+     */
+    protected function createSrcSet() {
         foreach ($this->settings['sourceCollection'] as $key => $configuration) {
             try {
                 if (!is_array($configuration)) {
                     throw new \RuntimeException();
                 }
-
+                // skip the default key
                 if ($key === 'default') {
                     continue;
                 }
-
-                if (isset($configuration['sizes'])) {
-                    $this->sizes[] = trim($configuration['sizes'], ' ,');
-                }
-
                 if ((int) $width > 0 && (int) $configuration['width'] > (int) $width) {
                     throw new \RuntimeException();
                 }
+                $localProcessingConfiguration = $this->defaultProcessConfiguration;
 
-
-
-                $localProcessingConfiguration = $defaultProcessConfiguration;
-
-                if ($options['additionalConfig']['image_format'] > 0) {
+                if ($this->additionalConfig[$key]['image_format'] > 0) {
                     $localProcessingConfiguration['width'] = intval($configuration['width']) . "c";
-                    $localProcessingConfiguration['height'] = round(intval($configuration['width']) / $options['additionalConfig']['image_format']) . "c";
+                    $localProcessingConfiguration['height'] = round(intval($configuration['width']) / $this->additionalConfig[$key]['image_format']) . "c";
                 } else {
                     $localProcessingConfiguration['width'] = intval($configuration['width']) . 'm';
                 }
@@ -188,73 +218,60 @@ class ImageRenderer implements FileRendererInterface {
                             $localProcessingConfiguration['width'] . ' -gravity NorthWest';
                 }
 
-                $processedFile = $originalFile->process(
+                $processedFile = $this->imageFile->process(
                         ProcessedFile::CONTEXT_IMAGECROPSCALEMASK, $localProcessingConfiguration
                 );
 
                 $url = $GLOBALS['TSFE']->absRefPrefix . $processedFile->getPublicUrl();
 
-                $srcset[] = $url . rtrim(' ' . $configuration['srcset'] ? : '');
+                $this->srcset[] = $url . rtrim(' ' . $configuration['srcset'] ? : '');
             } catch (\Exception $ignoredException) {
                 continue;
             }
         }
+    }
 
-        $originalProcessingConfiguration = $defaultProcessConfiguration;
-
+    /**
+     * Renders the image tag
+     * @return void
+     */
+    protected function renderImg() {
+        $originalProcessingConfiguration = $this->defaultProcessConfiguration;
         $originalProcessingConfiguration['width'] = isset($this->settings['sourceCollection']['default']['width']) ? $this->settings['sourceCollection']['default']['width'] : 600;
 
-        if ($options['additionalConfig']['image_format']) {
-            $originalProcessingConfiguration['height'] = round(intval($originalProcessingConfiguration['width']) / $options['additionalConfig']['image_format']);
+        if ($this->additionalConfig['image_format']) {
+            $originalProcessingConfiguration['height'] = round(intval($originalProcessingConfiguration['width']) / $this->additionalConfig['image_format']);
         }
 
-        $src = $originalFile->process(
-                        ProcessedFile::CONTEXT_IMAGECROPSCALEMASK, $originalProcessingConfiguration
-                )->getPublicUrl();
+        $processedFile = $this->imageFile->process(
+                ProcessedFile::CONTEXT_IMAGECROPSCALEMASK, $originalProcessingConfiguration
+        );
+        $src = $processedFile->getPublicUrl();
 
-        $altText = $file->getProperty('alternative') ? $file->getProperty('alternative') : $file->getProperty('name');
+        $altText = $processedFile->getProperty('alternative') ? $this->imageFile->getProperty('alternative') : $this->imageFile->getProperty('name');
 
         $this->tagBuilder->reset();
         $this->tagBuilder->setTagName('img');
         $this->tagBuilder->addAttribute('src', $src);
         $this->tagBuilder->addAttribute('alt', $altText);
-        if ($file->getProperty('title')) {
-            $this->tagBuilder->addAttribute('title', $file->getProperty('title'));
+        $this->tagBuilder->addAttribute('width', $processedFile->getProperty('width'));
+        $this->tagBuilder->addAttribute('height', $processedFile->getProperty('height'));
+
+        if ($this->imageFile->getProperty('title')) {
+            $this->tagBuilder->addAttribute('title', $this->imageFile->getProperty('title'));
         }
         if ($this->settings['cssClasses']['img']) {
             $this->tagBuilder->addAttribute('class', $this->settings['cssClasses']['img']);
         }
 
-        switch ($this->settings['layoutKey']) {
-            case 'srcset':
-                if (!empty($srcset)) {
-                    $this->tagBuilder->addAttribute('srcset', implode(', ', $srcset));
-                    $this->tagBuilder->addAttribute('sizes', implode(', ', $this->sizes));
-
-//                    $this->tagBuilder->addAttributes([
-//                        'width' => (int) $width,
-//                        'height' => (int) $height,
-//                    ]);
-                }
-                break;
-            case 'data':
-                if (!empty($data)) {
-                    foreach ($data as $key => $value) {
-                        $this->tagBuilder->addAttribute($key, $value);
-                    }
-                }
-                break;
-            default:
-                $this->tagBuilder->addAttributes([
-                    'width' => (int) $width,
-                    'height' => (int) $height,
-                ]);
-                break;
+        if (!empty($this->srcset)) {
+            $this->tagBuilder->addAttribute('srcset', implode(', ', $this->srcset));
+            $this->tagBuilder->addAttribute('sizes', $this->formatSizes());
         }
 
         // add additionalAttributes
-        if (is_array($additionalAttributes)) {
-            foreach ($additionalAttributes as $key => $value) {
+        if (is_array($this->additionalAttributes)) {
+            foreach ($this->additionalAttributes as $key => $value) {
                 $this->tagBuilder->addAttribute($key, $value);
             }
         }
@@ -273,7 +290,6 @@ class ImageRenderer implements FileRendererInterface {
         if (!$GLOBALS['TSFE']->tmpl instanceof TemplateService) {
             return [];
         }
-
         return $GLOBALS['TSFE']->tmpl->setup;
     }
 
@@ -281,17 +297,20 @@ class ImageRenderer implements FileRendererInterface {
      * @param array containing the parent "tree"
      * @return array sizes array
      */
-    protected function getSizes($tree, $size) {
-        if (is_array($size) && $size['vw']) {
-            $size['breakpoint'] = $this->settings['breakpoints_grid'][$size['breakpoint']];
-            $this->sizes[] = $size;
-        } else {
-            $this->sizes = [];
+    protected function getSizes($tree) {
+        $this->sizes = [];
+        if (\is_array($this->additionalConfig) && $this->additionalConfig['respImg']) {
+            foreach ($this->additionalConfig['respImg'] as $key => $value) {
+                if ($value['vw']) {
+                    $value['breakpoint'] = $this->settings['breakpoints_grid'][$value['breakpoint']];
+                    $this->sizes[] = $value;
+                }
+            }
         }
         $fluxColumn = substr($tree[0]['tx_flux_column'], 6);
+
         foreach ($tree as $key => $configuration) {
             $breakpoint = $configuration['flexform']['breakpoint'];
-
             if ($breakpoint && $fluxColumn) {
                 $cols = $configuration['flexform']['columns'][$fluxColumn]['column']['cols'];
                 if ($cols) {
@@ -305,7 +324,7 @@ class ImageRenderer implements FileRendererInterface {
             $fluxColumn = substr($configuration['tx_flux_column'], 6);
         }
 
-        /* apply some multiplication magic to get sizes right for nested grids */
+        /* apply some magic to get sizes right for nested grids */
         $lastBreakpoint = FALSE;
         $lastVw = False;
         foreach ($this->sizes as $key => $size) {
@@ -353,7 +372,6 @@ class ImageRenderer implements FileRendererInterface {
             $fluxParent['flexform'] = $this->getFlexformData($fluxParent['uid']);
             $parents[] = $fluxParent;
         }
-        //\TYPO3\CMS\Extbase\Utility\DebuggerUtility::var_dump($parents);
         return $parents;
     }
 
@@ -373,6 +391,26 @@ class ImageRenderer implements FileRendererInterface {
         $this->settings['sourceCollection'] = (isset($settings['sourceCollection']) && is_array($settings['sourceCollection'])) ? $settings['sourceCollection'] : [];
         $this->settings['cssClasses']['img'] = (isset($settings['cssClasses']['img'])) ? $settings['cssClasses']['img'] : false;
         $this->settings['breakpoints_grid'] = (isset($settings['breakpoints_grid'])) ? $settings['breakpoints_grid'] : false;
+    }
+
+    /**
+     * @param FileInterface $file
+     * @param int|string $width TYPO3 known format; examples: 220, 200m or 200c
+     * @param int|string $height TYPO3 known format; examples: 220, 200m or 200c
+     * @param array $options
+     * @param bool $usedPathsRelativeToCurrentScript See $file->getPublicUrl()
+     * @return string
+     */
+    public function render(
+    FileInterface $file, $width, $height, array $options = array(), $usedPathsRelativeToCurrentScript = false
+    ) {
+        $this->init($file, $width, $height, $options);
+        if (\is_array($this->additionalConfig) && $file->getProperty('tablenames') === 'tt_content') {
+            // calculating sizes only works for content elements in tt_content
+            $this->calculateSizes();
+        }
+        $this->createSrcSet();
+        return $this->renderImg();
     }
 
 }
