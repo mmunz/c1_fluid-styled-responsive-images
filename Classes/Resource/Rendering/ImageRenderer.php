@@ -248,7 +248,7 @@ class ImageRenderer implements FileRendererInterface {
         );
         $src = $processedFile->getPublicUrl();
 
-        $altText = $processedFile->getProperty('alternative') ? $this->imageFile->getProperty('alternative') : $this->imageFile->getProperty('name');
+        $altText = $this->imageFile->getProperty('alternative') ? $this->imageFile->getProperty('alternative') : $this->imageFile->getProperty('name');
 
         $this->tagBuilder->reset();
         $this->tagBuilder->setTagName('img');
