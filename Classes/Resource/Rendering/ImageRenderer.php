@@ -136,11 +136,10 @@ class ImageRenderer implements FileRendererInterface {
             $this->defaultProcessConfiguration = [];
             $this->defaultProcessConfiguration['width'] = (int) $width;
             $this->defaultProcessConfiguration['height'] = (int) $height;
-            $this->defaultProcessConfiguration['crop'] = $this->imageFile->getProperty('crop');
+            $this->defaultProcessConfiguration['crop'] = $this->originalFile->getProperty('crop');
         } catch (\InvalidArgumentException $e) {
             $this->defaultProcessConfiguration['crop'] = '';
         }
-
         is_array($options['additionalConfig']) ? $this->additionalConfig = $options['additionalConfig'] : null;
 
         if (is_array($options['additionalAttributes'])) {
