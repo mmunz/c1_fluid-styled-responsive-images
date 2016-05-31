@@ -68,6 +68,11 @@ class ImageRenderer implements FileRendererInterface {
     protected $srcset;
 
     /**
+     * @var string
+     */
+    protected $altText;
+
+    /**
      * @var array
      */
     protected $additionalConfig;
@@ -140,6 +145,14 @@ class ImageRenderer implements FileRendererInterface {
         } catch (\InvalidArgumentException $e) {
             $this->defaultProcessConfiguration['crop'] = '';
         }
+
+        // alternative text
+        if ($options['alt']) {
+            $this->altText = $options['alt'];
+        } else {
+            $this->altText = $this->imageFile->getProperty('alternative') ? $this->imageFile->getProperty('alternative') : $this->imageFile->getProperty('name');
+        }
+
         is_array($options['additionalConfig']) ? $this->additionalConfig = $options['additionalConfig'] : null;
 
         if (is_array($options['additionalAttributes'])) {
@@ -250,13 +263,10 @@ class ImageRenderer implements FileRendererInterface {
                 ProcessedFile::CONTEXT_IMAGECROPSCALEMASK, $originalProcessingConfiguration
         );
         $src = $processedFile->getPublicUrl();
-
-        $altText = $this->imageFile->getProperty('alternative') ? $this->imageFile->getProperty('alternative') : $this->imageFile->getProperty('name');
-
         $this->tagBuilder->reset();
         $this->tagBuilder->setTagName('img');
         $this->tagBuilder->addAttribute('src', $src);
-        $this->tagBuilder->addAttribute('alt', $altText);
+        $this->tagBuilder->addAttribute('alt', $this->altText);
         $this->tagBuilder->addAttribute('width', $processedFile->getProperty('width'));
         $this->tagBuilder->addAttribute('height', $processedFile->getProperty('height'));
 
