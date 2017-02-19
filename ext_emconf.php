@@ -13,8 +13,8 @@ $EM_CONF[$_EXTKEY] = array(
     'author_email' => 't3dev@comuno.net',
     'constraints' => [
         'depends' => [
-            'php' => '5.5.0-7.99.99',
-            'typo3' => '7.5.0-7.99.99',
+            'php' => '5.5.0-8.99.99',
+            'typo3' => '7.5.0-8.99.99',
             'c1_fce_grid' => '0.1.0-1.0.0'
         ],
         'conflicts' => [],
