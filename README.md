@@ -1,6 +1,6 @@
 # fluid-styled-responsive-images
 
-**discontinued. While this solution worked for me it was to difficult and i'm trying a new approach using lazysizes.js now**
+**Discontinued. While this solution worked for me it was too difficult and i'm trying a new approach using lazysizes.js now**
 
 **Note: This is an experiment and not production ready.**
 
