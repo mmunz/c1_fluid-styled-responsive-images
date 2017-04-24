@@ -1,9 +1,8 @@
 # fluid-styled-responsive-images
 
-** discontinued. While this solution worked for me it was to difficult and i'm trying a new approach using lazysizes.js now **
+**discontinued. While this solution worked for me it was to difficult and i'm trying a new approach using lazysizes.js now**
 
-
-** Note: This is an experiment and not production ready. **
+**Note: This is an experiment and not production ready.**
 
 This fork of https://github.com/alexanderschnitzler/fluid-styled-responsive-images
 is an attempt to get better responsive images by being aware of the column
